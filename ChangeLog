@@ -1,0 +1,27 @@
+Version 0.7.3 (12-11-2003)
++ alexeictrl_client now updated for network code. Or at least it was, until...
++ changed alexei_connect() to accept a hostname.
++ There's a new define for alexeictrl_server. define NOPP to compile a version
+  that prints the parport bits to stdout instead of actually flipping bits on
+  an actual parport. Useful for those without a parport (or root access).
+
+Version 0.7.2 (12-5-2003)
++ Made alexeictrl_server.
++ PWM code works for left motor!
+- Removed weaponFire from botstate/botpacket, and grab is now grabOrFire.
++ Added more to network test program to better test PWM.
++ Created parallel port test program which goes Knight Rider style on the
+  parallel port data pins.
+
+Version 0.7.1 (12-1-2003)
++ Added network capability to libalexeictrl, with corresponding test program
+- removed autoconf/automake trash. run ./bootstrap.sh to regenerate the
+  autoconf/automake system.
+
+Version 0.7.0 (11-7-2003)
++ Changed over to autoconf/automake. Things are now slightly more portable, and
+  easier to deal with.
++ Created libalexeictrl, and moved the botcmd struct into it (renamed to
+  botstate). Created botpacket struct, functions to convert between botstate
+  and botpacket, and debug printing routines.
++ Created basic test program for testing conversion of botcmd and botstruct

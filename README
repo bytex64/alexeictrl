@@ -1,0 +1,111 @@
+alexeictrl - software for controlling a robot via TCP/IP
+
+DESCRIPTION
+
+alexeictrl is a client/server package for receiving input from external
+sources (keyboard, joystick, etc), converting that data into the state
+of the robot, and sending it over a network. The server end recieves the
+state, and converts it into signals that control a robot (currently via
+parallel port control). Alexeictrl is made up of 3 main parts:
+
+libalexeictrl		(in the libalexeictrl/ directory)
+	a static library for common routines between the client and
+	server. Conversion between network packets and internal state,
+	network sending/recieving, debugging, that sort of thing.
+
+alexeictrl_client	(in the client/ directory)
+	the command/control software, run on a client computer. It
+	interprets joystick movement, keypresses, and other input, and
+	determines the state of the robot systems. It then sends this
+	information to the server.
+
+alexeictrl_server	(in the server/ directory)
+	the control system for the robot itself. It recieves network
+	packets and outputs control signals.
+
+There's also a small test suite, so I can make sure things aren't
+broken. To compile, do the usual:
+
+./configure
+make
+
+Don't make install. It's not really an installable program...
+The interesting programs are in the client/ and server/ directories.
+If you're into making stuff break (and who isn't?), the tests/ directory
+may be of interest to you.
+
+STUFF YOU SHOULD KNOW (either because it's new, or it's broken)
+
+The project now uses a spiffy automake system, so if we really wanted to
+we could conceivably compile it on just about anything. Well, anything
+that uses the Linux joystick driver. Which, right now, is just Linux. :)
+
+I've copied Matt's alexeictrl_srv-0.6.c into client/, and renamed it to
+alexeictrl_client, because it really was the client, not the server. It
+compiles with the automake system fine, and the configure script checks
+for ncurses and linux/joystick.h. Other than renaming, I haven't touched
+it, so Matt, I'm leaving it up to you to update it to use
+libalexeictrl's structures.
+
+USING LIBALEXEICTRL (This one goes out to Matt, 'cause nobody else should care)
+
+To use libalexeictrl in a program, you have to include the header files
+for what you're using (probably protocol.h, and possibly conversion.h or
+debug.h). When linking, make sure that libalexeictrl.a is linked in.
+
+libalexeictrl defines a couple of structures for the robot state. The
+most useful one (for client and server programs) is the botstate. It's
+defined in "protocol.h", and looks like this on the inside:
+
+typedef struct _botstate {
+	float lTracMotor, rTracMotor;
+	int arm;
+	int grabRotate;
+	int grab;
+	int dump;
+	int weaponArm;
+	int weaponFire;
+} botstate;
+
+It's slightly different from Matt's botcmd, mainly in that I've added
+weaponFire. (I'm assuming this was an oversight) Also, note that it's a
+typedef struct instead of just struct. This allows you to refer to it as
+'botstate' instead of 'struct botstate', which looks much cleaner, if
+not more verbose.
+
+Also in protocol.h, is the botpacket struct. This is a representation of
+the botstate, packed into 32 bits, for easy network transmission. Nobody
+really needs to know what this contains, since it only exists inside the
+network transmission/recieving functions. The bits are packed in
+something like this:
+
+|31  -  23|    22    | 21 | 20 |   19-18  |17-16|   15-8   |    7-0   |
+ undefined weaponFire dump grab grabRotate  arm  rTracMotor lTracMotor
+
+As you can see, I've still got 9 bits left, which will probably go
+towards some sort of checksum or sequence number, to make sure the data
+is valid.
+
+In "conversion.h", there are a couple of functions to convert between
+the botstate and botpacket structs. They are as follows:
+
+void botstate_to_packet(botstate *in, botpacket *out);
+void botpacket_to_state(botpacket *in, botstate *out);
+
+Pretty simple. Each takes a pointer to a struct, 'in', and converts it to the
+opposite, and stores it in 'out'. Note that since the botpacket stores
+lTracMotor and rTracMotor in an 8-bit integer, loss of information does
+occur when converting from botstate to botpacket.
+
+In debug.h, there are a couple of functions for printing out botstate
+and botpacket. They are:
+
+void print_botstate(botstate *bs);
+void print_botpacket(botpacket *bp);
+
+Each takes a pointer to a botstate/botpacket, and prints out in detail
+what they contain. Useful for tracking down input/network bugs.
+
+COPYRIGHT
+
+libalexeictrl is (C) 2003 Matt Erickson and Chip Black

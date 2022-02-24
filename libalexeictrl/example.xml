@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<robot>
+	<communications>
+		<port>6507</port>
+		<robot>192.168.0.2</robot>
+		<controller>192.168.0.1</controller>
+		<channel name="lTracMotor" type="PWM" size=8>
+		<channel name="rTracMotor" type="PWM" size=8>
+		<channel name="arm" type="PWM" size=4>
+		<channel name="grip" type="single">
+		<channel name="griprotate" type="3way">
+		<channel name="dump" type="single">
+	</communications>
+	<input>
+		<joystick axis="X" method="tanksteer" left="lTracMotor" right="rTracMotor">
+		<joystick axis="Y" method="tanksteer" left="lTracMotor" right="rTracMotor">
+		<joystick button="1" method="button" action="grip">
+		<joystick button="2" method="button" action="griprotate">
+		<joystick button="3" method="button" action="griprotate" option="reverse">
+		<keyboard key="UP" action="arm">
+		<keyboard key="DOWN" action="arm" option="reverse">
+		<keyboard key="d" action="dump">
+	</input>
+	<output>
+		<parport pin="DATA0" channel="lTracMotor" function="direction">
+		<parport pin="DATA1" channel="lTracMotor" function="PWM">
+		<parport pin="DATA2" channel="rTracMotor" function="direction">
+		<parport pin="DATA3" channel="rTracMotor" function="PWM">
+		<parport pin="DATA4" channel="arm" function="direction">
+		<parport pin="DATA5" channel="arm" function="PWM">
+		<parport pin="DATA6" channel="griprotate" function="direction">
+		<parport pin="DATA7" channel="griprotate" function="PWM">
+		<parport pin="CONTROL0" channel="grip">
+		<parport pin="CONTROL1" channel="dump">
+	</output>
+	<sensors>
+		<sensor type="TMP04">
+	</sensors>
+</robot>
